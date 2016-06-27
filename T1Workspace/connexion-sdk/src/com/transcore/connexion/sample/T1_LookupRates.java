@@ -48,40 +48,44 @@ import com.tcore.tfmiRates.SpotRateReport;
  * 
  */
 public class T1_LookupRates extends BaseSampleClient {
-    private RateEquipmentCategory.Enum equipmentCategory = RateEquipmentCategory.VANS;
+
+	private RateEquipmentCategory.Enum equipmentCategory = RateEquipmentCategory.VANS;
 
     @Override
     protected void run() throws Exception {
         final SessionToken sessionToken = loginUser1();
 
         currentLookup(sessionToken);
+        
+        }
     //    historicContractLookup(sessionToken);
     //    historicSpotLookup(sessionToken);
-    }
+	
+    
 
     private void currentLookup(final SessionToken sessionToken) throws RemoteException {
 
         //final String origin = GlobalConfigProperties.singleton().getProperty("origin");
         //final String destination = GlobalConfigProperties.singleton().getProperty("destination");
-        final String origin = "49504";
-    	final String destination = "Detroit, MI";		
+         String origin = "49504";
+    	 String destination = "Detroit, MI";	
         		
-        final LookupRateRequestDocument lookupRateRequestDoc = LookupRateRequestDocument.Factory
+         LookupRateRequestDocument lookupRateRequestDoc = LookupRateRequestDocument.Factory
                 .newInstance();
-        final LookupRateRequest request = lookupRateRequestDoc.addNewLookupRateRequest();
+         LookupRateRequest request = lookupRateRequestDoc.addNewLookupRateRequest();
 
-        final LookupRateOperation operation = request.addNewLookupRateOperations();
+         LookupRateOperation operation = request.addNewLookupRateOperations();
         operation.setOrigin(place(origin));
         operation.setDestination(place(destination));
         operation.setEquipment(equipmentCategory);
-        operation.setIncludeContractRate(true);
+        operation.setIncludeContractRate(false);
         operation.setIncludeSpotRate(true);
 
-        final TfmiFreightMatchingServiceStub stub = new TfmiFreightMatchingServiceStub(endpointUrl);
+         TfmiFreightMatchingServiceStub stub = new TfmiFreightMatchingServiceStub(endpointUrl);
 
-        final LookupRateResponseDocument responseDoc = stub.lookupRate(lookupRateRequestDoc, null, null,
+         LookupRateResponseDocument responseDoc = stub.lookupRate(lookupRateRequestDoc, null, null,
                 sessionHeaderDocument(sessionToken));
-        final LookupRateResponse response = responseDoc.getLookupRateResponse();
+         LookupRateResponse response = responseDoc.getLookupRateResponse();
 
         System.out.println("\n=== Current Rate Lookup ===");
         System.out
@@ -95,11 +99,30 @@ public class T1_LookupRates extends BaseSampleClient {
                 continue;
             }
 
-            final LookupRateSuccessData successData = response.getLookupRateResultsArray(i)
+             LookupRateSuccessData successData = response.getLookupRateResultsArray(i)
                     .getLookupRateSuccessData();
 
             if (successData.isSetSpotRate()) {
                 final CurrentSpotRateReport report = successData.getSpotRate();
+                printCurrentSummaryLine("Spot", report.getEstimatedLinehaulRate(),
+                        report.getLowLinehaulRate(), report.getHighLinehaulRate(),
+                        report.getEstimatedLinehaulTotal(), report.getLowLinehaulTotal(),
+                        report.getHighLinehaulTotal(), report.getConfidenceLevel(), report.getRatedLane()
+                                .getOriginGeography(), report.getRatedLane().getDestinationGeography(),
+                        report.getAverageFuelSurchargeRate(), report.getContributors(), report.getMoves(),
+                        report.getDaysBack());
+            }
+             origin = "Chicago, IL";
+        	 destination = "Detroit, MI";	
+        	 
+        	 
+             operation.setOrigin(place(origin));
+             operation.setDestination(place(destination));
+             
+             LookupRateSuccessData successData2 = response.getLookupRateResultsArray(i)
+                     .getLookupRateSuccessData();
+            if (successData2.isSetSpotRate()) {
+                final CurrentSpotRateReport report = successData2.getSpotRate();
                 printCurrentSummaryLine("Spot", report.getEstimatedLinehaulRate(),
                         report.getLowLinehaulRate(), report.getHighLinehaulRate(),
                         report.getEstimatedLinehaulTotal(), report.getLowLinehaulTotal(),
