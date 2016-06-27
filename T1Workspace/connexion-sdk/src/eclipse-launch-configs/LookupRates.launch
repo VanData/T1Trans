@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/connexion-sdk/src/java/com/transcore/connexion/sample/LookupRates.java"/>
+<listEntry value="/connexion-sdk/src/java/com/transcore/connexion/sample/T1_LookupRates.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -10,7 +10,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.transcore.connexion.sample.LookupRates"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.transcore.connexion.sample.T1_LookupRates"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-O login.properties"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="connexion-sdk"/>
 </launchConfiguration>
