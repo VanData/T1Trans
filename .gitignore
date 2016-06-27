@@ -228,3 +228,8 @@ T1Workspace/.metadata/.log
 T1Workspace/.metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi
 *.index
 *.png
+*.log
+*.snap
+*.dat
+T1Workspace/.metadata/.plugins/org.eclipse.wst.jsdt.core/externalLibsTimeStamps
+*.index
