@@ -47,7 +47,7 @@ import com.tcore.tfmiRates.SpotRateReport;
  * historicContractLookup - 13-month historic estimates for contract.
  * 
  */
-public class T1_LookupRates extends BaseSampleClient {
+public class T1_lookupRatesMulti extends BaseSampleClient {
 
 	private RateEquipmentCategory.Enum equipmentCategory = RateEquipmentCategory.VANS;
 
@@ -67,9 +67,17 @@ public class T1_LookupRates extends BaseSampleClient {
 
         //final String origin = GlobalConfigProperties.singleton().getProperty("origin");
         //final String destination = GlobalConfigProperties.singleton().getProperty("destination");
-         String origin = "49504";
+         
+        System.out.println("\n=== Current Rate Lookup ===");
+        System.out
+                .println("Type        | RateEst | RateLow | RateHigh | TotalEst | TotalLow | TotalHigh | Conf | Origin                    | Destination               | FuelSur | Contr | Moves | DaysBack ");
+    	
+        String origin = "49504";
     	 String destination = "Detroit, MI";	
-        		
+    	 Float A1;
+    	 Float A2;
+    	 Float A3;
+    	 for (int j = 0; j < 3; j++){		
          LookupRateRequestDocument lookupRateRequestDoc = LookupRateRequestDocument.Factory
                 .newInstance();
          LookupRateRequest request = lookupRateRequestDoc.addNewLookupRateRequest();
@@ -81,8 +89,7 @@ public class T1_LookupRates extends BaseSampleClient {
         operation.setIncludeContractRate(false);
         operation.setIncludeSpotRate(true);
 
-         origin = "Chicago, IL";
-         destination = "Detroit, MI";
+
         
         operation.setOrigin(place(origin));
         operation.setDestination(place(destination));
@@ -93,11 +100,9 @@ public class T1_LookupRates extends BaseSampleClient {
                 sessionHeaderDocument(sessionToken));
          LookupRateResponse response = responseDoc.getLookupRateResponse();
 
-        System.out.println("\n=== Current Rate Lookup ===");
-        System.out
-                .println("Type        | RateEst | RateLow | RateHigh | TotalEst | TotalLow | TotalHigh | Conf | Origin                    | Destination               | FuelSur | Contr | Moves | DaysBack ");
+
         for (int i = 0; i < response.sizeOfLookupRateResultsArray(); i++) {
-            System.out.format("--- %s -> %s ---\n", origin, destination);
+       //     System.out.format("--- %s -> %s ---\n", origin, destination);
 
             if (response.getLookupRateResultsArray(i).isSetServiceError()) {
                 System.out.println(summaryString(response.getLookupRateResultsArray(i).getServiceError()));
@@ -118,6 +123,17 @@ public class T1_LookupRates extends BaseSampleClient {
                         report.getAverageFuelSurchargeRate(), report.getContributors(), report.getMoves(),
                         report.getDaysBack());
             }
+            
+            
+            if (successData.isSetSpotRate()) {
+                final CurrentSpotRateReport report = successData.getSpotRate();
+                A1 = report.getEstimatedLinehaulRate();
+                A2 = report.getLowLinehaulRate();
+                A3 = report.getHighLinehaulRate();
+                System.out.format("%f, %f, %f", A1, A2, A3);
+            }     
+
+            
       /*     
             String origin2 = "Chicago, IL";
             String destination2 = "Detroit, MI";	
@@ -173,84 +189,9 @@ public class T1_LookupRates extends BaseSampleClient {
 
             }
         }
-    }
-
-    private void historicSpotLookup(final SessionToken sessionToken) throws RemoteException {
-        final String origin = GlobalConfigProperties.singleton().getProperty("origin");
-        final String destination = GlobalConfigProperties.singleton().getProperty("destination");
-
-        final LookupHistoricSpotRatesRequestDocument requestDoc = LookupHistoricSpotRatesRequestDocument.Factory
-                .newInstance();
-        final LookupHistoricSpotRatesRequest request = requestDoc.addNewLookupHistoricSpotRatesRequest();
-        final LookupHistoricSpotRatesOperation operation = request.addNewLookupHistoricSpotRatesOperation();
-        operation.setOrigin(place(origin));
-        operation.setDestination(place(destination));
-        operation.setEquipment(equipmentCategory);
-
-        final TfmiFreightMatchingServiceStub stub = new TfmiFreightMatchingServiceStub(endpointUrl);
-        final LookupHistoricSpotRatesResponseDocument responseDoc = stub.lookupHistoricSpotRates(requestDoc,
-                null, null, sessionHeaderDocument(sessionToken));
-        final LookupHistoricSpotRatesResponse response = responseDoc.getLookupHistoricSpotRatesResponse();
-
-        System.out.println("\n=== Historic Spot Lookup ===");
-        System.out.println("When    | RateEst | RateLow | RateHigh | TotalEst | TotalLow | TotalHigh | Conf");
-
-        if (response.getLookupHistoricSpotRatesResult().isSetServiceError()) {
-            System.out.println(summaryString(response.getLookupHistoricSpotRatesResult().getServiceError()));
-            return;
-        }
-
-        final LookupHistoricSpotRatesSuccessData successData = response.getLookupHistoricSpotRatesResult()
-                .getLookupHistoricSpotRatesSuccessData();
-
-        for (int i = 0; i < successData.sizeOfMonthlyReportArray(); i++) {
-            final HistoricSpotRateReport report = successData.getMonthlyReportArray(i);
-            System.out.format("%4d-%02d | %7.2f | %7.2f | %8.2f | %8.2f | %8.2f | %9.2f | %4d\n", report
-                    .getWhen().getYear(), report.getWhen().getMonth(), report.getEstimatedLinehaulRate(),
-                    report.getLowLinehaulRate(), report.getHighLinehaulRate(), report
-                            .getEstimatedLinehaulTotal(), report.getLowLinehaulTotal(), report
-                            .getHighLinehaulTotal(), report.getConfidenceLevel());
-        }
-    }
-
-    private void historicContractLookup(final SessionToken sessionToken) throws RemoteException {
-        final String origin = GlobalConfigProperties.singleton().getProperty("origin");
-        final String destination = GlobalConfigProperties.singleton().getProperty("destination");
-
-        final LookupHistoricContractRatesRequestDocument requestDoc = LookupHistoricContractRatesRequestDocument.Factory
-                .newInstance();
-        final LookupHistoricContractRatesRequest request = requestDoc
-                .addNewLookupHistoricContractRatesRequest();
-        final LookupHistoricContractRatesOperation operation = request
-                .addNewLookupHistoricContractRatesOperation();
-        operation.setOrigin(place(origin));
-        operation.setDestination(place(destination));
-        operation.setEquipment(equipmentCategory);
-
-        final TfmiFreightMatchingServiceStub stub = new TfmiFreightMatchingServiceStub(endpointUrl);
-        final LookupHistoricContractRatesResponseDocument responseDoc = stub.lookupHistoricContractRates(
-                requestDoc, null, null, sessionHeaderDocument(sessionToken));
-        final LookupHistoricContractRatesResponse response = responseDoc
-                .getLookupHistoricContractRatesResponse();
-
-        System.out.println("\n=== Historic Contract Lookup ===");
-        System.out.println("When    | RateEst | RateLow | RateHigh");
-        if (response.getLookupHistoricContractRatesResult().isSetServiceError()) {
-            System.out.println(summaryString(response.getLookupHistoricContractRatesResult()
-                    .getServiceError()));
-            return;
-        }
-
-        final LookupHistoricContractRatesSuccessData successData = response
-                .getLookupHistoricContractRatesResult().getLookupHistoricContractRatesSuccessData();
-
-        for (int i = 0; i < successData.sizeOfMonthlyReportArray(); i++) {
-            final HistoricContractRateReport report = successData.getMonthlyReportArray(i);
-            System.out.format("%4d-%02d | %7.2f | %7.2f | %8.2f\n", report.getWhen().getYear(), report
-                    .getWhen().getMonth(), report.getEstimatedLinehaulRate(), report.getLowLinehaulRate(),
-                    report.getHighLinehaulRate());
-        }
-    }
+        origin = "Chicago, IL";
+        destination = "Detroit, MI";}
+    	 }
 
     public static void main(final String[] args) {
         run(args);
