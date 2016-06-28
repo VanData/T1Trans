@@ -1,7 +1,14 @@
 package com.transcore.connexion.sample;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
+
+import com.org.util.DBconnect;
 
 import cltool4j.GlobalConfigProperties;
 import cltool4j.args4j.EnumAliasMap;
@@ -50,11 +57,15 @@ import com.tcore.tfmiRates.SpotRateReport;
 public class T1_lookupRatesMulti extends BaseSampleClient {
 
 	private RateEquipmentCategory.Enum equipmentCategory = RateEquipmentCategory.VANS;
-
+	   
+	private Connection  conn;
+	private PreparedStatement pstCheckExist;
+	   
+	   
     @Override
     protected void run() throws Exception {
         final SessionToken sessionToken = loginUser1();
-
+        
         currentLookup(sessionToken);
         
         }
@@ -72,12 +83,15 @@ public class T1_lookupRatesMulti extends BaseSampleClient {
         System.out
                 .println("Type        | RateEst | RateLow | RateHigh | TotalEst | TotalLow | TotalHigh | Conf | Origin                    | Destination               | FuelSur | Contr | Moves | DaysBack ");
     	
-        String origin = "49504";
+         String origin = "49504";
     	 String destination = "Detroit, MI";	
     	 Float A1;
     	 Float A2;
     	 Float A3;
-    	 for (int j = 0; j < 3; j++){		
+    	 
+
+    		
+    	 for (int j = 0; j < 2; j++){		
          LookupRateRequestDocument lookupRateRequestDoc = LookupRateRequestDocument.Factory
                 .newInstance();
          LookupRateRequest request = lookupRateRequestDoc.addNewLookupRateRequest();
@@ -131,9 +145,29 @@ public class T1_lookupRatesMulti extends BaseSampleClient {
                 A2 = report.getLowLinehaulRate();
                 A3 = report.getHighLinehaulRate();
                 System.out.format("%f, %f, %f", A1, A2, A3);
-            }     
+                
+                try{
+    			conn = DBconnect.getConnectionStatus();
+                
+        	String query = "Insert into DAT_Lane_hist ([Spot Avg Linehaul Rate] ,[Spot Low Linehaul Rate],[Spot High Linehaul Rate]) values (?,?,?);";
+        	System.out.println(query);	        	
+				pstCheckExist = conn.prepareStatement(query);
 
-            
+				pstCheckExist.setFloat(1, A1);
+
+				pstCheckExist.setFloat(2, A2);
+
+				pstCheckExist.setFloat(3, A3);
+
+				pstCheckExist.executeUpdate();
+					conn.close();
+                  }
+                catch(Exception e)
+                {
+                	e.printStackTrace();
+   	         
+                }
+                }
       /*     
             String origin2 = "Chicago, IL";
             String destination2 = "Detroit, MI";	
@@ -190,7 +224,8 @@ public class T1_lookupRatesMulti extends BaseSampleClient {
             }
         }
         origin = "Chicago, IL";
-        destination = "Detroit, MI";}
+        destination = "Detroit, MI";
+        }
     	 }
 
     public static void main(final String[] args) {
