@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="sample-lib/cltool4j.jar"/>
 	<classpathentry kind="lib" path="sample-lib/tjws.jar"/>
 	<classpathentry kind="lib" path="sample-lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/NVanderlaan/Downloads/Microsoft JDBC Driver 6.0 for SQL Server/sqljdbc_6.0/enu/sqljdbc4.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
